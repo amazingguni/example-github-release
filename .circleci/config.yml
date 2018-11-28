@@ -25,19 +25,23 @@ jobs:
       - run:
           name: "Publish Release on GitHub"
           command: |
-            VERSION=${CIRCLE_BUILD_NUM}
+            VERSION=${CIRCLE_TAG}
             ARTIFACT_PATH=/tmp/artifacts/out
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} $ARTIFACT_PATH
+            
 workflows:
   version: 2
-  build_release:
+  build_only:
     jobs:
       - build
-      - release:
-          requires:
-            - build
+  build_release:
+    jobs:
+      - build:
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - release:
+          requires:
+            - build
